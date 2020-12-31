@@ -14,7 +14,6 @@ printBanner () {
 networkScan () {
 
     target=$1
-    echo "$target"
     wordlistPath=$2
 
     network=`echo $target | cut -d "/" -f1`
@@ -25,7 +24,7 @@ networkScan () {
     mkdir $network
     
     echo -e "\n"
-    echo "--------- REALIZANDO PING SWEEP NA REDE $target ---------"
+    echo "--------- RUNNING PING SWEEP ON THE $target NETWORK ---------"
 
     nmap -sn -PE $target | grep report | cut -d ' ' -f5 > $network/hosts
 
@@ -33,24 +32,24 @@ networkScan () {
     cat $network/hosts
 
     echo -e "\n"
-    echo "--------- REALIZANDO PORT SCAN DOS HOSTS ---------"
+    echo "--------- RUNNING PORT SCAN ON THE HOSTS ---------"
 
     for host in $(cat $network/hosts)
     do
         mkdir $network/$host
         
-        echo "Portas abertas no host $host:"
+        echo "Open ports on host $host:"
 
         nmap -T4 -p- -Pn $host 2> /dev/null | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | cut -d ' ' -f1 | cut -d '/' -f1 > $network/$host/openPorts
         cat $network/$host/openPorts
 
-        echo "Realizando analise completa das portas"
+        echo "Running full analysis of the ports..."
     	nmap -A -Pn -p $(tr '\n' , < $network/$host/openPorts) $host > $network/$host/scanResult 2> /dev/null
         cat $network/$host/scanResult | grep http | grep 'open\|closed\|filtered\|unfiltered' | cut -d " " -f1 | cut -d "/" -f1 > $network/$host/httpPorts
 
         for porta in $(cat $network/$host/httpPorts)
         do
-            echo "Realizando enumeracao de diretorios (Porta $porta)"
+            echo "Enumerating directories (Port $porta)"
                 
             gobuster dir --url http://$host:$porta --wordlist $wordlistPath --threads 100 -a "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36" -q > $network/$host/diretorios-$porta 2> /dev/null
         done
@@ -59,12 +58,12 @@ networkScan () {
 
         wait
         
-        echo "Scan do host $host finalizado!"
+        echo "Scan on host $host finished!"
         echo -e "\n"
 
     done
 
-    echo "Scan concluido com sucesso!"
+    echo "Scan completed successfully!"
 }
 
 hostScan () {
@@ -77,20 +76,20 @@ hostScan () {
     mkdir $target
     
     echo -e "\n"
-    echo "--------- REALIZANDO PORT SCAN DO HOST ---------"
+    echo "--------- RUNNING PORT SCAN ON THE HOST ---------"
         
-    echo "Portas abertas no host $target:"
+    echo "Open ports on host $target:"
 
     nmap -T4 -p- -Pn $target 2> /dev/null | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | cut -d ' ' -f1 | cut -d '/' -f1 > $target/openPorts
     cat $target/openPorts
 
-    echo "Realizando analise completa das portas"
+    echo "Running full analysis of the ports..."
     nmap -A -Pn -p $(tr '\n' , < $target/openPorts) $target > $target/scanResult 2> /dev/null
     cat $target/scanResult | grep http | grep 'open\|closed\|filtered\|unfiltered' | cut -d " " -f1 | cut -d "/" -f1 > $target/httpPorts
 
     for porta in $(cat $target/httpPorts)
     do
-        echo "Realizando enumeracao de diretorios (Porta $porta)"
+        echo "Enumerating directories (Port $porta)"
             
         gobuster dir --url http://$target:$porta --wordlist $wordlistPath --threads 100 -a "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36" -q > $target/diretorios-$porta 2> /dev/null
     done
@@ -99,11 +98,10 @@ hostScan () {
 
     wait
     
-    echo "Scan do target $target finalizado!"
-    echo -e "\n"
+    echo "Scan on host $target completed!"
 
 
-    echo "Scan concluido com sucesso!"
+    echo "Scan completed successfully!"
 }
 
 if [ "$1" == "" -o "$2" == "" -o "$3" == "" ]
