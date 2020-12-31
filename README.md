@@ -22,4 +22,4 @@ The tool runs the mentioned tasks in the following order:
   - gobuster
 
 ## Wordlist
-The "directories.txt" wordlist available is a combination with dirbuster's medium wordlist and dirb's common wordlist.
+The "directories.txt" wordlist available is a combination of dirbuster's medium wordlist and dirb's common wordlist.
