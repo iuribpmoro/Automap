@@ -21,3 +21,5 @@ The tool runs the mentioned tasks in the following order:
 - Enumeration:
   - gobuster
 
+## Wordlist
+The "directories.txt" wordlist available is a combination with dirbuster's medium wordlist and dirb's common wordlist.
