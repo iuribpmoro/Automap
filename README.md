@@ -33,8 +33,8 @@ The tool runs the mentioned tasks in the following order:
 The "directories.txt" wordlist available is a combination of dirbuster's medium wordlist and dirb's common wordlist.
 
 # Usage
-1. ``chmod +x automap.sh``
-2. ``./automap.sh <MODE> <NETWORK/MASK> <WORDLIST>``
+1. ``chmod +x Automap.sh``
+2. ``./Automap.sh <MODE> <NETWORK/MASK> <WORDLIST>``
 
 Example:
-``./automap.sh network 192.168.0.0/24 ./directories.txt``
+``./Automap.sh network 192.168.0.0/24 ./directories.txt``
