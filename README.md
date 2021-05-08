@@ -34,7 +34,7 @@ The "directories.txt" wordlist available is a combination of dirbuster's medium 
 
 # Usage
 1. ``chmod +x automap.sh``
-2. ``./automap.sh <MODE> <NETWORK/MASK> <WORDLIST>``
+2. ``./Automap.sh <MODE> <NETWORK/MASK> <WORDLIST>``
 
 Example:
-``./automap.sh network 192.168.0.0/24 ./directories.txt``
+``./Automap.sh network 192.168.0.0/24 ./directories.txt``
