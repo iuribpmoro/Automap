@@ -29,6 +29,23 @@ printBanner () {
     echo -e "\n${reset}"
 }
 
+# -------------------------------- Print help -------------------------------- #
+
+printHelp () {
+    
+    echo -e "${bold}Usage: ${reset}./Automap.sh <MODE> <NETWORK/MASK> <WORDLIST>"
+	echo -e "${bold}Example: ${reset}./Automap.sh network 192.168.0.0/24 ./directoriesWordlist.txt"
+    echo -e "\n"
+
+    echo -e "${bold}Available Modes: ${reset}"
+    echo -e "\thost: scans a specific host"
+    echo -e "\tnetwork: scans all hosts found in a network"
+
+    echo -e "\n"
+}
+
+# -------------------------------- Check Tools ------------------------------- #
+
 checkTools () {
     if ! command -v nmap &> /dev/null
     then
@@ -126,15 +143,9 @@ hostScan () {
 if [ "$1" == "" -o "$2" == "" -o "$3" == "" ]
 then
     printBanner
-	echo -e "${bold}Usage: ${reset}./Automap.sh <MODE> <NETWORK/MASK> <WORDLIST>"
-	echo -e "${bold}Example: ${reset}./Automap.sh network 192.168.0.0/24 ./directoriesWordlist.txt"
-    echo -e "\n"
 
-    echo -e "${bold}Available Modes: ${reset}"
-    echo -e "\thost: scans a specific host"
-    echo -e "\tnetwork: scans all hosts found in a network"
+    printHelp
 
-    echo -e "\n"
 else
     
     printBanner
