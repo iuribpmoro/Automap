@@ -29,6 +29,19 @@ printBanner () {
     echo -e "\n${reset}"
 }
 
+checkTools () {
+    if ! command -v nmap &> /dev/null
+    then
+        echo -e "${bold}Nmap was not found in the system!\nExiting...${reset}\n"
+        exit
+    elif ! command -v gobuster &> /dev/null
+    then
+        echo -e "${bold}Gobuster was not found in the system!\nExiting...${reset}\n"
+        exit
+    fi
+
+}
+
 # -------------------------------- Ping Sweep -------------------------------- #
 
 pingSweep () {
@@ -125,6 +138,8 @@ then
 else
     
     printBanner
+
+    checkTools
     
     target=$2
     wordlistPath=$3
