@@ -122,15 +122,23 @@ hostScan () {
 
     mkdir $target
     
-    echo -e "\n${blue}${bold}--------- SCANNING TARGET $target ---------${reset}"
+    sudo echo -e "\n${blue}${bold}--------- SCANNING TARGET $target ---------${reset}"
         
     echo -e "${bold}Open ports on host $target:${reset}"
 
-    nmap -T4 -p- -Pn $target 2> /dev/null | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | cut -d ' ' -f1 | cut -d '/' -f1 > $target/openPorts
-    cat $target/openPorts
+    # Runs a quick scan on all 65535 ports
+    sudo nmap -T4 -p- -Pn $target 2> /dev/null > $target/quickScan
+    cat $target/quickScan | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | cut -d ' ' -f1 | cut -d '/' -f1 > $target/openPorts
+    
+    # Shows open ports and running services
+    cat $target/quickScan | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | tr -s ' ' | sed 's/\/tcp//' | cut -d ' ' -f1,3 | sed 's/ /\t->\t/' > $target/quickScanResult
+    cat $target/quickScanResult
+    rm $target/quickScan
+    rm $target/quickScanResult
 
+    # Runs a thorough scan on the open ports
     echo -e "\n${bold}Running full analysis of the ports...${reset}"
-    nmap -A -Pn -p $(tr '\n' , < $target/openPorts) $target > $target/scanResult 2> /dev/null
+    sudo nmap -A -Pn -p $(tr '\n' , < $target/openPorts) $target > $target/scanResult 2> /dev/null
     cat $target/scanResult | grep http | grep 'open\|closed\|filtered\|unfiltered' | cut -d " " -f1 | cut -d "/" -f1 > $target/httpPorts
     echo -e "${green}Scan results saved on $target/scanResult ${reset}\n"
 
