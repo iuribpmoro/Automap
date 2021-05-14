@@ -95,8 +95,28 @@ installNmap () {
 }
 
 installGo () {
-    echo -e "${red}${bold}Please install Go and try again!\n${reset}"
-    exit
+    goBaseUrl="https://golang.org/dl/"
+
+    echo "${bold}Downloading latest version of Go...${reset}"
+    wget --quiet --continue "${goBaseUrl}"
+    goUrlPath=$(grep ".linux-amd64.tar.gz" index.html | head -n 1 | cut -d ' ' -f4 | sed 's/href="//;s/">//;s/\/dl\///')
+    goUrl="$goBaseUrl$goUrlPath"
+    wget --quiet --continue "${goUrl}"
+    rm index.html
+
+    tput civis    
+    tput cuu1
+    tput cnorm
+
+    echo "${bold}Installing latest version of Go...${reset}"
+    sudo tar -C /usr/local -xzf $goUrlPath
+    rm ./$goUrlPath
+    
+    #FIX
+    sudo echo "export PATH=$PATH:/usr/local/go/bin" >> $HOME/.profile
+    source $HOME/.profile
+    
+    echo -e "${green}${bold}Go installed successfully!\n${reset}"
 }
 
 installGobuster () {
