@@ -112,7 +112,6 @@ installGo () {
     sudo tar -C /usr/local -xzf $goUrlPath
     rm ./$goUrlPath
     
-    #FIX
     sudo echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.profile
     . $HOME/.profile
     
