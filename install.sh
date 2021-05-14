@@ -113,8 +113,8 @@ installGo () {
     rm ./$goUrlPath
     
     #FIX
-    sudo echo "export PATH=$PATH:/usr/local/go/bin" >> $HOME/.profile
-    source $HOME/.profile
+    sudo echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.profile
+    . $HOME/.profile
     
     echo -e "${green}${bold}Go installed successfully!\n${reset}"
 }
