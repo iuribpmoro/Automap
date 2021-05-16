@@ -16,6 +16,13 @@ reset=`tput sgr0`
 randomColorNumber=$((0 + $RANDOM % 7))
 randomColor=`tput setaf ${randomColorNumber}`
 
+# ------------------------------- Generic error ------------------------------ #
+
+genericError () {
+    echo -e "${red}${bold}\nError while running the script! Exiting...${reset}\n"
+    exit
+}
+
 # ------------------------------- Print banner ------------------------------- #
 
 printBanner () {
@@ -71,10 +78,10 @@ lineUp () {
 
 # -------------------------------- Ping Sweep -------------------------------- #
 
+#Usage: pingSweep $target
 pingSweep () {
 
     target=$1
-    network=$2
 
     echo -e "\n"
     echo "${blue}${bold}--------- RUNNING PING SWEEP ON THE $target NETWORK ---------${reset}"
@@ -88,19 +95,77 @@ pingSweep () {
 
 # --------------------------- Directory Enumeration -------------------------- #
 
+#Usage: directoryEnumeration $target $wordlistPath
 directoryEnumeration () {
     
     host=$1
     wordlistPath=$2
 
+    echo -e "\n${blue}${bold}--------- ENUMERATING DIRECTORIES ON $target ---------${reset}"
+
     for porta in $(cat $host/httpPorts)
-    do
-        echo -e "${bold}Enumerating directories (Port $porta)${reset}"
+    do    
+        echo -e "${bold}\nEnumerating directories (Port $porta)${reset}"
             
         gobuster dir --url http://$host:$porta --wordlist $wordlistPath --threads 100 -a "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36" -q > $host/diretorios-$porta 2> /dev/null
+        
+        # Printing enumeration results
+        tput civis
+        lineUp 1
+        tput cnorm
+
+        echo -e "${bold}Directories found (Port $porta)${reset}                                        "
+
+        cat $host/diretorios-$porta | sed 's/Status: //'
     done
 
     wait
+
+}
+
+#Usage: quickScan $target
+quickScan () {
+    
+    mkdir $target
+
+    sudo echo -e "\n${blue}${bold}--------- SCANNING TARGET $target ---------${reset}"
+
+    echo -e "${bold}Open ports on host $target:${reset}"
+    echo "Open ports and default services:"
+
+    # Runs a quick scan on all 65535 ports
+    sudo nmap -T4 -p- -Pn $target 2> /dev/null > $target/quickScan
+    cat $target/quickScan | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | cut -d ' ' -f1 | cut -d '/' -f1 > $target/openPorts
+
+    # Shows open ports and running services
+    cat $target/quickScan | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | tr -s ' ' | sed 's/\/tcp//' | cut -d ' ' -f1,3 | sed 's/ /\t->\t/' > $target/quickScanResult
+    cat $target/quickScanResult
+
+    rm $target/quickScan
+    rm $target/quickScanResult
+
+}
+
+#Usage: fullScan $target
+fullScan () {
+
+    numberOfOpenPorts=$(wc -l $target/openPorts | cut -d ' ' -f1)
+
+    # Runs a thorough scan on the open ports
+    echo -e "\n${bold}Running full analysis of the ports...${reset}"
+    sudo nmap -A -Pn -p $(tr '\n' , < $target/openPorts) $target > $target/scanResult 2> /dev/null
+    cat $target/scanResult | grep http | grep 'open\|closed\|filtered\|unfiltered' | cut -d " " -f1 | cut -d "/" -f1 > $target/httpPorts
+
+    # Printing scan results
+    tput civis
+    lineUp $((numberOfOpenPorts+3))
+    tput cnorm
+
+    echo "Open ports and services running:"
+
+    cat $target/scanResult | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | tr -s ' ' | sed 's/\/tcp//' | cut -d ' ' -f1,3- | sed 's/ /\t->\t/;s/ /\t-\t/'
+    
+    echo -e "\n${green}Scan results saved on $target/scanResult ${reset}\n"
 
 }
 
@@ -115,7 +180,7 @@ networkScan () {
     mkdir $network
     cd $network
     
-    pingSweep $target $network
+    pingSweep $target
 
     for host in $(cat hosts)
     do
@@ -129,45 +194,9 @@ hostScan () {
     
     target=$1
     wordlistPath=$2
-
-    mkdir $target
     
-    sudo echo -e "\n${blue}${bold}--------- SCANNING TARGET $target ---------${reset}"
-        
-    echo -e "${bold}Open ports on host $target:${reset}"
-    echo "Open ports and default services:"
-
-    # Runs a quick scan on all 65535 ports
-    sudo nmap -T4 -p- -Pn $target 2> /dev/null > $target/quickScan
-    cat $target/quickScan | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | cut -d ' ' -f1 | cut -d '/' -f1 > $target/openPorts
-    
-    numberOfOpenPorts=$(wc -l $target/openPorts | cut -d ' ' -f1)
-
-    # Shows open ports and running services
-    cat $target/quickScan | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | tr -s ' ' | sed 's/\/tcp//' | cut -d ' ' -f1,3 | sed 's/ /\t->\t/' > $target/quickScanResult
-    cat $target/quickScanResult
-
-    rm $target/quickScan
-    rm $target/quickScanResult
-
-    # Runs a thorough scan on the open ports
-    echo -e "\n${bold}Running full analysis of the ports...${reset}"
-    sudo nmap -A -Pn -p $(tr '\n' , < $target/openPorts) $target > $target/scanResult 2> /dev/null
-    cat $target/scanResult | grep http | grep 'open\|closed\|filtered\|unfiltered' | cut -d " " -f1 | cut -d "/" -f1 > $target/httpPorts
-
-    # Printing scan results
-    tput civis    
-    lineUp $((numberOfOpenPorts+3))
-    tput cnorm
-
-    echo "Open ports and services running:"
-
-    cat $target/scanResult | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | tr -s ' ' | sed 's/\/tcp//' | cut -d ' ' -f1,3- | sed 's/ /\t->\t/;s/ /\t-\t/'
-    
-    echo -e "\n${green}Scan results saved on $target/scanResult ${reset}\n"
-
-    # Calls the directory enumeration function
-
+    quickScan $target
+    fullScan $target
     directoryEnumeration $target $wordlistPath
     
     echo -e "\n${green}${bold}Scan on host $target completed!${reset}"
