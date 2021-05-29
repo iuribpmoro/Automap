@@ -112,8 +112,9 @@ installGo () {
     sudo tar -C /usr/local -xzf $goUrlPath
     rm ./$goUrlPath
     
-    sudo echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.profile
-    . $HOME/.profile
+    sudo echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> $HOME/.bashrc
+
+    . $HOME/.bashrc
     
     echo -e "${green}${bold}Go installed successfully!\n${reset}"
 }
