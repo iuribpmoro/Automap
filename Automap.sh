@@ -1,5 +1,7 @@
 #!/bin/bash
 
+numberOfPorts=65535
+
 # ----------------------------- Color definition ----------------------------- #
 
 black=`tput setaf 0`
@@ -40,13 +42,15 @@ printBanner () {
 
 printHelp () {
     
-    echo -e "${bold}Usage: ${reset}./Automap.sh <MODE> <NETWORK/MASK> <WORDLIST>"
-	echo -e "${bold}Example: ${reset}./Automap.sh network 192.168.0.0/24 ./directoriesWordlist.txt"
+    echo -e "${bold}Usage: ${reset}./Automap.sh <MODE> <NETWORK/MASK> <WORDLIST> [options]"
+	echo -e "${bold}Example: ${reset}./Automap.sh network 192.168.0.0/24 ./directoriesWordlist.txt -n 1000"
     echo -e "\n"
 
     echo -e "${bold}Available Modes: ${reset}"
     echo -e "\thost: scans a specific host"
     echo -e "\tnetwork: scans all hosts found in a network"
+    echo -e "\n${bold}Available Options: ${reset}"
+    echo -e "\t-n: specifies number of ports to scan"
 
     echo -e "\n"
 }
@@ -126,15 +130,18 @@ directoryEnumeration () {
 #Usage: quickScan $target
 quickScan () {
     
+    target=$1
+    numberOfPorts=$2
+
     mkdir $target
 
-    sudo echo -e "\n${blue}${bold}--------- SCANNING TARGET $target ---------${reset}"
+    sudo echo -e "\n${blue}${bold}--------- SCANNING TARGET $target ($numberOfPorts Top Ports) ---------${reset}"
 
     echo -e "${bold}Open ports on host $target:${reset}"
     echo "Open ports and default services:"
 
     # Runs a quick scan on all 65535 ports
-    sudo nmap -T4 -p- -Pn $target 2> /dev/null > $target/quickScan
+    sudo nmap -T4 --top-ports $numberOfPorts -Pn $target 2> /dev/null > $target/quickScan
     cat $target/quickScan | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | cut -d ' ' -f1 | cut -d '/' -f1 > $target/openPorts
 
     # Shows open ports and running services
@@ -143,6 +150,7 @@ quickScan () {
 
     rm $target/quickScan
     rm $target/quickScanResult
+
 
 }
 
@@ -173,6 +181,7 @@ networkScan () {
 
     target=$1
     wordlistPath=$2
+    numberOfPorts=$3
 
     network=`echo $target | cut -d "/" -f1`
     mask=`echo $target | cut -d "/" -f2`
@@ -184,7 +193,7 @@ networkScan () {
 
     for host in $(cat hosts)
     do
-        hostScan $host $wordlistPath
+        hostScan $host $wordlistPath $numberOfPorts
     done
 
     echo "Scan completed successfully!"
@@ -194,14 +203,17 @@ hostScan () {
     
     target=$1
     wordlistPath=$2
+    numberOfPorts=$3
     
-    quickScan $target
+    quickScan $target $numberOfPorts
     fullScan $target
     directoryEnumeration $target $wordlistPath
     
     echo -e "\n${green}${bold}Scan on host $target completed!${reset}"
 
 }
+
+
 
 if [ "$1" == "" -o "$2" == "" -o "$3" == "" ]
 then
@@ -211,22 +223,36 @@ then
 
 else
     
+    mode=$1; shift
+    target=$1; shift
+    wordlistPath=$1; shift
+
+    while getopts ":n:" opt; do
+        case ${opt} in
+            n ) numberOfPorts=$OPTARG
+            ;;
+            \? ) printHelp
+            ;;
+            : )
+            echo "Invalid option: $OPTARG requires an argument" 1>&2
+            ;;
+        esac
+    done
+    shift $((OPTIND -1))
+
     printBanner
 
     checkTools
-    
-    target=$2
-    wordlistPath=$3
 
-    if [ "$1" == "host" ]
-    then
-        
-        hostScan $target $wordlistPath
-
-    elif [ "$1" == "network" ]
+    if [ "$mode" == "host" ]
     then
 
-        networkScan $target $wordlistPath
+        hostScan $target $wordlistPath $numberOfPorts
+
+    elif [ "$mode" == "network" ]
+    then
+
+        networkScan $target $wordlistPath $numberOfPorts
 
     fi
 
