@@ -61,7 +61,7 @@ The installation script installs the following tools:
 
 
 Usage: ./Automap.sh <MODE> <NETWORK/MASK> <WORDLIST> [options]
-Example: ./Automap.sh network 192.168.0.0/24 ./directoriesWordlist.txt -n 1000
+Example: ./Automap.sh network 192.168.0.0/24 ./wordlists/large-directories.txt -n 1000
 
 
 Available Modes: 
@@ -73,8 +73,8 @@ Available Options:
 ```
 
 - Examples:
-  - ``./Automap.sh network 192.168.0.0/24 ./directories.txt``
-  - ``./Automap.sh host 192.168.10.200 ./directories.txt -n 1000 ``
+  - ``./Automap.sh network 192.168.0.0/24 ./wordlists/large-directories.txt``
+  - ``./Automap.sh host 192.168.10.200 ./wordlists/large-directories.txt -n 1000 ``
 
 
 
@@ -98,7 +98,9 @@ The tool runs the mentioned tasks in the following order:
 
 
 ## Wordlists
-The "directories.txt" wordlist available is a combination of dirbuster's medium wordlist and dirb's common wordlist.
+Inside the wordlists folder, available on this repository, there is a file named "large-directories.txt", a combination of dirbuster's medium wordlist and dirb's common wordlist.
+
+Also, there are 3 raft wordlists from the [Seclists](https://github.com/danielmiessler/SecLists) repository.
 
 
 

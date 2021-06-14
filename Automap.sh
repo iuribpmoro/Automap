@@ -43,7 +43,7 @@ printBanner () {
 printHelp () {
     
     echo -e "${bold}Usage: ${reset}./Automap.sh <MODE> <NETWORK/MASK> <WORDLIST> [options]"
-	echo -e "${bold}Example: ${reset}./Automap.sh network 192.168.0.0/24 ./directoriesWordlist.txt -n 1000"
+	echo -e "${bold}Example: ${reset}./Automap.sh network 192.168.0.0/24 ./wordlists/large-directories.txt -n 1000"
     echo -e "\n"
 
     echo -e "${bold}Available Modes: ${reset}"
