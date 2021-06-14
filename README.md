@@ -72,9 +72,9 @@ Available Options:
 	-n: specifies number of ports to scan
 ```
 
-- Example:
-``./Automap.sh network 192.168.0.0/24 ./directories.txt``
-``./Automap.sh host 192.168.10.200 ./directories.txt -n 1000 ``
+- Examples:
+  - ``./Automap.sh network 192.168.0.0/24 ./directories.txt``
+  - ``./Automap.sh host 192.168.10.200 ./directories.txt -n 1000 ``
 
 
 
