@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys, socket
 
-print("Testando Anonymous FTP!")
+#print("Testando Anonymous FTP!")
 
 if len(sys.argv) <= 1:
     print ("Modo de uso: ./anonymousFtp.py <IP>")

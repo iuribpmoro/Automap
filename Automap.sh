@@ -141,7 +141,12 @@ quickScan () {
     echo "Open ports and default services:"
 
     # Runs a quick scan on all 65535 ports
-    sudo nmap -T4 --top-ports $numberOfPorts -Pn $target 2> /dev/null > $target/quickScan
+    if [ $numberOfPorts -ne 65535 ]; then
+        sudo nmap -T4 --top-ports $numberOfPorts -Pn $target 2> /dev/null > $target/quickScan
+    else
+        sudo nmap -T4 -p- -Pn $target 2> /dev/null > $target/quickScan
+    fi
+    
     cat $target/quickScan | grep 'open\|closed\|filtered\|unfiltered' | grep -v ':' | grep -v 'All' | cut -d ' ' -f1 | cut -d '/' -f1 > $target/openPorts
 
     # Shows open ports and running services
