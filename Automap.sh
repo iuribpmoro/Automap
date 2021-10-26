@@ -133,7 +133,7 @@ quickScan () {
     target=$1
     numberOfPorts=$2
 
-    mkdir $target
+    [ ! -d "./$target" ] && mkdir $target
 
     sudo echo -e "\n${blue}${bold}--------- SCANNING TARGET $target ($numberOfPorts Top Ports) ---------${reset}"
 
