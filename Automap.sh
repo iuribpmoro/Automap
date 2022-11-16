@@ -166,7 +166,7 @@ fullScan () {
 
     # Runs a thorough scan on the open ports
     echo -e "\n${bold}Running full analysis of the ports...${reset}"
-    sudo nmap -A -Pn -p $(tr '\n' , < $target/openPorts) $target > $target/scanResult 2> /dev/null
+    sudo nmap -A -sV -Pn -p $(tr '\n' , < $target/openPorts) $target > $target/scanResult 2> /dev/null
     cat $target/scanResult | grep http | grep 'open\|closed\|filtered\|unfiltered' | cut -d " " -f1 | cut -d "/" -f1 > $target/httpPorts
 
     # Printing scan results
